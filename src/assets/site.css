@@ -1,0 +1,46 @@
+/* MoistLab: grey theme. Field #494949 is the banner's own background, so the banner melts into the page. */
+@font-face{font-family:"JetBrains Mono";src:url("/assets/fonts/JetBrainsMono-Regular.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"JetBrains Mono";src:url("/assets/fonts/JetBrainsMono-Bold.woff2") format("woff2");font-weight:700;font-style:normal;font-display:swap}
+:root{--field:#494949;--well:#3e3e3e;--ink:#e6e6dc;--muted:#b6b6ae;--rule:#66666a;--accent:#7b7c80;color-scheme:dark}
+*{box-sizing:border-box}
+html{background:var(--field);-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--field);color:var(--ink);font:400 1rem/1.7 "JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-variant-ligatures:none}
+::selection{background:var(--ink);color:var(--field)}
+.wrap{max-width:1200px;margin:0 auto;padding:0 clamp(16px,4vw,48px)}
+.banner{display:block;max-width:1200px;margin:0 auto}
+.banner img{display:block;width:100%;height:auto;-webkit-mask-image:linear-gradient(to right,transparent,#000 2.5%,#000 97.5%,transparent),linear-gradient(to bottom,#000 80%,transparent);-webkit-mask-composite:source-in;mask-image:linear-gradient(to right,transparent,#000 2.5%,#000 97.5%,transparent),linear-gradient(to bottom,#000 80%,transparent);mask-composite:intersect}
+nav{display:flex;gap:28px;padding:12px 0 8px;font-weight:700}
+nav a{text-decoration:none;padding:2px 0;border-bottom:2px solid transparent}
+nav a[aria-current="page"]{border-bottom-color:var(--ink)}
+main{max-width:68ch;padding:24px 0 56px}
+h1,h2,h3{line-height:1.3;margin:0}
+h1{font-size:1.75rem;margin-bottom:16px}
+h2{font-size:1.2rem;margin:40px 0 8px}
+h3{font-size:1rem;margin:28px 0 4px}
+p{margin:0 0 16px}
+a{color:var(--ink);text-decoration:underline;text-decoration-color:var(--accent);text-decoration-thickness:2px;text-underline-offset:4px}
+a:hover{background:var(--ink);color:var(--field);text-decoration-color:transparent}
+a:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+.meta{color:var(--muted);margin:-8px 0 28px}
+.muted{color:var(--muted)}
+ul.notes{list-style:none;margin:32px 0 0;padding:0}
+ul.notes li{display:grid;grid-template-columns:13ch 1fr;column-gap:2ch;margin:0 0 24px}
+ul.notes time{color:var(--muted)}
+ul.notes .t{font-weight:700}
+ul.notes .s{grid-column:2;color:var(--muted)}
+.empty{border-left:3px solid var(--accent);padding:4px 0 4px 16px;margin-top:32px;color:var(--muted)}
+code,pre{font:inherit;font-size:.92em}
+code{background:var(--well);padding:1px 6px}
+pre{background:var(--well);border-left:3px solid var(--accent);padding:14px 16px;overflow-x:auto;margin:0 0 20px;line-height:1.55}
+pre code{background:none;padding:0;font-size:1em}
+blockquote{margin:0 0 16px;padding-left:16px;border-left:2px solid var(--rule);color:var(--muted)}
+table{border-collapse:collapse;margin:0 0 20px;width:100%}
+th,td{border-bottom:1px solid var(--rule);padding:6px 12px 6px 0;text-align:left;vertical-align:top}
+hr{border:0;border-top:1px solid var(--rule);margin:32px 0}
+img{max-width:100%;height:auto}
+footer{border-top:1px solid var(--rule);padding:20px 0 40px;color:var(--muted)}
+footer .wrap{display:flex;flex-wrap:wrap;gap:8px 28px}
+@media (max-width:560px){ul.notes li{grid-template-columns:1fr}ul.notes .s{grid-column:1}ul.notes time{margin-bottom:2px}h1{font-size:1.5rem}}
+@media print{body{background:#fff;color:#000}a{color:#000}}
+.skip{position:absolute;left:-9999px;top:0;background:var(--ink);color:var(--field);padding:8px 12px;z-index:10}
+.skip:focus{left:8px;top:8px}
