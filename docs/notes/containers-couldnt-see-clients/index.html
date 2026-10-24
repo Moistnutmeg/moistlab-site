@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Why my containers couldn&#x27;t see who was connecting - MoistLab</title>
+<meta name="description" content="Every client looked like the Docker gateway. The cause was a firewall rule I did not know Tailscale had added.">
+<meta name="theme-color" content="#494949">
+<link rel="canonical" href="https://moistlab.dev/notes/containers-couldnt-see-clients/">
+<link rel="icon" type="image/png" sizes="32x32" href="../../assets/img/moistrex-32.png">
+<link rel="apple-touch-icon" href="../../assets/img/moistrex-180.png">
+<link rel="alternate" type="application/atom+xml" title="MoistLab" href="../../feed.xml">
+<link rel="preload" href="../../assets/fonts/JetBrainsMono-Regular.woff2" as="font" type="font/woff2" crossorigin>
+<meta property="og:title" content="Why my containers couldn&#x27;t see who was connecting - MoistLab">
+<meta property="og:description" content="Every client looked like the Docker gateway. The cause was a firewall rule I did not know Tailscale had added.">
+<meta property="og:image" content="https://moistlab.dev/assets/img/moistlab-banner-1200.jpg">
+<meta property="og:type" content="article">
+<link rel="stylesheet" href="../../assets/site.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<a class="banner" href="../../" aria-label="MoistLab, home"><img src="../../assets/img/moistlab-banner-1200.jpg" srcset="../../assets/img/moistlab-banner-1200.jpg 1200w, ../../assets/img/moistlab-banner.jpg 2400w" sizes="(min-width: 1200px) 1200px, 100vw" width="2400" height="490" alt="MoistRex, a pixel dinosaur in a hoodie and sunglasses beside a glowing terminal, next to the word MoistLab"></a>
+<div class="wrap">
+<p class="prompt" aria-hidden="true"><span class="who">moistnutmeg@moistlab:</span>~$ <span class="cmd" style="--n:43">cat notes/containers-couldnt-see-clients.md</span></p>
+<nav aria-label="Main"><a href="../../" aria-current="page">notes/</a><a href="../../about/">about.md</a><a href="../../feed.xml">feed.xml</a></nav>
+<main id="main">
+<h1>Why my containers couldn&#x27;t see who was connecting</h1>
+<p class="meta"><time datetime="2026-10-24">24 Oct 2026</time></p>
+<h2>Goal</h2>
+<p>I run a small server at home with a set of Docker containers, reachable over a Tailscale network. A script on it records the last time a real person used each service, so I can see which ones I have stopped using. From about 10 October it reported zero live clients for everything, and the "last used" dates stopped moving. I wanted to find out why, and fix it properly rather than switch the check off.</p>
+<h2>Steps</h2>
+<ol>
+<li><strong>Reproduce it.</strong> I held a connection open to a service from another machine and read the container's own connection table (<code>/proc/net/tcp</code>). Over the LAN address the container saw my machine's real address. Over the Tailscale address it saw the Docker bridge gateway instead. My script ignores bridge addresses on purpose, because that is how it tells real clients from the monitoring tools that poll every service. So every Tailscale client was being thrown away.</li>
+<li><strong>Look on the host.</strong> <code>ss</code> on the host showed no connection at all. Docker's NAT delivers packets straight into the container, so the host never owns a socket. That ruled out reading host sockets as a fix.</li>
+<li>
+<p><strong>Read the firewall.</strong> I ran a read-only script with <code>sudo</code> that printed the NAT and filter rules. Two of Tailscale's own rules explained everything:</p>
+<pre><code>-A ts-forward -i tailscale0 -j MARK --set-xmark 0x40000/0xff0000
+-A ts-postrouting -m mark --mark 0x40000/0xff0000 -j MASQUERADE
+</code></pre>
+<p>Anything arriving from the tailnet gets marked, and anything marked gets its source address rewritten to the host's own. Docker's port forwarding turns a tailnet connection into forwarded traffic, so it hit that masquerade. The nftables counter on that rule had already counted 25 packets, so it was firing.</p>
+</li>
+<li>
+<p><strong>Check I did not need it.</strong> As I read it, that rule is there for routing other machines' traffic through this one (a subnet router or exit node). My server advertises no routes and is not an exit node, so nothing should have depended on it.</p>
+</li>
+<li><strong>Change one setting, with a safety net.</strong> Tailscale has a netfilter mode called <code>nodivert</code>: it keeps its rules but stops sending traffic through them. I wrapped <code>tailscale set --netfilter-mode=nodivert</code> in a script that reverts itself after 180 seconds unless I confirm it still works. Rollback is <code>tailscale set --netfilter-mode=on</code>.</li>
+<li><strong>Verify.</strong> Every published port still answered over the tailnet, a held connection now showed the real client address inside the container, and the script reported a live client again.</li>
+</ol>
+<h2>Snag</h2>
+<p>My first theory was wrong. I assumed Docker's userland proxy was rewriting the source address, so I patched the script to also read the host's sockets. It found nothing, and the reason was the point: NAT leaves no socket on the host, so the patch could never have worked. I only learned that by testing with a held connection rather than trusting the theory. I never installed that patch.</p>
+<p>The change also costs something. With <code>nodivert</code>, Tailscale's rule that drops spoofed tailnet addresses arriving from outside the tailnet no longer applies, and neither does its blanket forward accept. I tested that every container is still reachable. On a home server behind a router that trade is small, but it is a trade.</p>
+<p>I also never proved that a Tailscale update on 10 October caused this. The dates stopped around then, so I suspect it, but I could not show it.</p>
+<h2>Next time</h2>
+<ul>
+<li>Look at the packet's source address from inside the container before assuming where it changed.</li>
+<li>Treat "never used" and "stale" findings from a sampler as suspect when every service flips to zero on the same day. That pattern was the clue, and a real change in how people use things would not look like that.</li>
+<li>Make any network change reversible by default, with an automatic timeout, before running it on a machine I am connected to through that same network.</li>
+<li>Real client addresses now show up in each service's own logs. That is a side benefit I did not plan for.</li>
+</ul>
+</main>
+</div>
+<footer><div class="wrap"><a href="https://github.com/Moistnutmeg">github</a><span>moistlab.dev</span></div><div class="wrap"><p class="prompt waiting" aria-hidden="true"><span class="who">moistnutmeg@moistlab:</span>~$ <span class="cur"></span></p></div></footer>
+</body>
+</html>

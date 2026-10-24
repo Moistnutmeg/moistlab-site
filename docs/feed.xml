@@ -1,3 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom"><title>MoistLab</title><link href="https://moistlab.dev/"/><link rel="self" href="https://moistlab.dev/feed.xml"/><id>https://moistlab.dev/</id><updated>2026-10-24T00:00:00Z</updated>
+<entry><title>Why my containers couldn&#x27;t see who was connecting</title><link href="https://moistlab.dev/notes/containers-couldnt-see-clients/"/><id>https://moistlab.dev/notes/containers-couldnt-see-clients/</id><updated>2026-10-24T00:00:00Z</updated><summary>Every client looked like the Docker gateway. The cause was a firewall rule I did not know Tailscale had added.</summary></entry>
 </feed>
