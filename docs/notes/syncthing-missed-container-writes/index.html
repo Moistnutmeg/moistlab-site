@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Syncthing didn&#x27;t see the files my container wrote - MoistLab</title>
+<meta name="description" content="A download worked and the file was on the server, but it never reached my other machine until I forced a rescan.">
+<meta name="theme-color" content="#494949">
+<link rel="canonical" href="https://moistlab.dev/notes/syncthing-missed-container-writes/">
+<link rel="icon" type="image/png" sizes="32x32" href="../../assets/img/moistrex-32.png">
+<link rel="apple-touch-icon" href="../../assets/img/moistrex-180.png">
+<link rel="alternate" type="application/atom+xml" title="MoistLab" href="../../feed.xml">
+<link rel="preload" href="../../assets/fonts/JetBrainsMono-Regular.woff2" as="font" type="font/woff2" crossorigin>
+<meta property="og:title" content="Syncthing didn&#x27;t see the files my container wrote - MoistLab">
+<meta property="og:description" content="A download worked and the file was on the server, but it never reached my other machine until I forced a rescan.">
+<meta property="og:image" content="https://moistlab.dev/assets/img/moistlab-banner-1200.jpg">
+<meta property="og:type" content="article">
+<link rel="stylesheet" href="../../assets/site.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<a class="banner" href="../../" aria-label="MoistLab, home"><img src="../../assets/img/moistlab-banner-1200.jpg" srcset="../../assets/img/moistlab-banner-1200.jpg 1200w, ../../assets/img/moistlab-banner.jpg 2400w" sizes="(min-width: 1200px) 1200px, 100vw" width="2400" height="490" alt="MoistRex, a pixel dinosaur in a hoodie and sunglasses beside a glowing terminal, next to the word MoistLab"></a>
+<div class="wrap">
+<p class="prompt" aria-hidden="true"><span class="who">moistnutmeg@moistlab:</span>~$ <span class="cmd" style="--n:46">cat notes/syncthing-missed-container-writes.md</span></p>
+<nav aria-label="Main"><a href="../../" aria-current="page">notes/</a><a href="../../about/">about.md</a><a href="../../feed.xml">feed.xml</a></nav>
+<main id="main">
+<h1>Syncthing didn&#x27;t see the files my container wrote</h1>
+<p class="meta"><time datetime="2026-10-24">24 Oct 2026</time></p>
+<h2>Goal</h2>
+<p>I built a small web page that saves a link's video or images into a folder on my home server. A Docker container does the saving, and Syncthing copies that folder to my main computer, where the next step picks the files up. The goal was simple: paste a link, and have the file arrive on my computer within a minute or so.</p>
+<h2>Steps</h2>
+<ol>
+<li><strong>Test the chain end to end</strong> with a harmless public video. The page said it had saved the file, and the file was in the folder on the server.</li>
+<li><strong>Wait for it to arrive.</strong> After three minutes the other machine still had nothing.</li>
+<li><strong>Rule out the obvious.</strong> Syncthing's status for that folder was idle, with no errors and no files waiting. The two machines were connected. The file watcher was switched on, with a 10-second delay.</li>
+<li><strong>Ask Syncthing what it knew.</strong> I listed the folder through its API, and the file was not in its database at all. Syncthing had never noticed it.</li>
+<li><strong>Force a scan of just that folder</strong> through the API. The file synced to my computer within seconds.</li>
+<li><strong>Automate the workaround.</strong> A one-line script asks Syncthing to rescan only that subfolder, and a cron entry runs it every minute. It reads Syncthing's API key from its own config file at run time, so the key is not stored in the script, and it prints nothing when it works.</li>
+<li><strong>Test it again.</strong> A new download reached my computer in about 30 seconds.</li>
+</ol>
+<h2>Snag</h2>
+<p>I never found out why the watcher missed the file. The container writes through a bind mount, and my guess is that those writes do not produce the events the watcher listens for, but I did not prove that. So this is a workaround, not a root-cause fix, and it costs a rescan of one small folder every minute.</p>
+<p>There was a second problem on the way. The first test hung. The container could not fetch the download link the service handed back, because that link used the server's own network address, and the container could not reach its own host that way. I changed the page to fetch through the internal service name instead. I suspect the host's firewall, but I did not confirm it.</p>
+<h2>Next time</h2>
+<ul>
+<li>Test the whole chain with a real file before calling a feature finished. The container log said everything was fine.</li>
+<li>When a sync does not happen, ask the sync tool what it knows about the file before checking anything else. "Not in its database" narrowed it down in one query.</li>
+<li>Say plainly in the notes when a fix is a workaround, so the question stays visible.</li>
+<li>If I rebuild this, have the container write somewhere Syncthing definitely watches, or trigger the rescan from the same place that saves the file.</li>
+</ul>
+</main>
+</div>
+<footer><div class="wrap"><a href="https://github.com/Moistnutmeg">github</a><span>moistlab.dev</span></div><div class="wrap"><p class="prompt waiting" aria-hidden="true"><span class="who">moistnutmeg@moistlab:</span>~$ <span class="cur"></span></p></div></footer>
+</body>
+</html>

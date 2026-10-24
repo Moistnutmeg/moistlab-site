@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How this site was built - MoistLab</title>
+<meta name="description" content="A static site, a small Python builder, GitHub Pages and a free domain. What went smoothly and the three things that did not.">
+<meta name="theme-color" content="#494949">
+<link rel="canonical" href="https://moistlab.dev/notes/how-this-site-was-built/">
+<link rel="icon" type="image/png" sizes="32x32" href="../../assets/img/moistrex-32.png">
+<link rel="apple-touch-icon" href="../../assets/img/moistrex-180.png">
+<link rel="alternate" type="application/atom+xml" title="MoistLab" href="../../feed.xml">
+<link rel="preload" href="../../assets/fonts/JetBrainsMono-Regular.woff2" as="font" type="font/woff2" crossorigin>
+<meta property="og:title" content="How this site was built - MoistLab">
+<meta property="og:description" content="A static site, a small Python builder, GitHub Pages and a free domain. What went smoothly and the three things that did not.">
+<meta property="og:image" content="https://moistlab.dev/assets/img/moistlab-banner-1200.jpg">
+<meta property="og:type" content="article">
+<link rel="stylesheet" href="../../assets/site.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<a class="banner" href="../../" aria-label="MoistLab, home"><img src="../../assets/img/moistlab-banner-1200.jpg" srcset="../../assets/img/moistlab-banner-1200.jpg 1200w, ../../assets/img/moistlab-banner.jpg 2400w" sizes="(min-width: 1200px) 1200px, 100vw" width="2400" height="490" alt="MoistRex, a pixel dinosaur in a hoodie and sunglasses beside a glowing terminal, next to the word MoistLab"></a>
+<div class="wrap">
+<p class="prompt" aria-hidden="true"><span class="who">moistnutmeg@moistlab:</span>~$ <span class="cmd" style="--n:36">cat notes/how-this-site-was-built.md</span></p>
+<nav aria-label="Main"><a href="../../" aria-current="page">notes/</a><a href="../../about/">about.md</a><a href="../../feed.xml">feed.xml</a></nav>
+<main id="main">
+<h1>How this site was built</h1>
+<p class="meta"><time datetime="2026-10-24">24 Oct 2026</time></p>
+<h2>Goal</h2>
+<p>I wanted a place to publish write-ups that would last, cost nothing to run, and not depend on a service I would have to maintain. That meant no framework and no database, no third-party requests when someone loads a page, and notes I could write as plain Markdown.</p>
+<h2>Steps</h2>
+<ol>
+<li><strong>Pick the shape.</strong> Markdown notes in one folder, a short Python script that turns them into plain HTML, and GitHub Pages serving the output. The builder is about 160 lines and uses one library, <code>markdown</code>.</li>
+<li><strong>Design it in my own theme.</strong> One font family, a self-hosted subset of the one I use in my terminal, about 33 KB per weight. The banner's background grey is also the page's background grey, so the banner melts into the page, with its edges feathered by a mask. Links invert when you hover them, like selected text in a terminal. Each page types its own command at a prompt, and that is the only animation. It takes 0.7 seconds and stops for anyone who has asked their system for reduced motion.</li>
+<li><strong>Get a domain.</strong> A free first-year <code>.dev</code> domain. <code>.dev</code> only works over HTTPS, which suits GitHub Pages, because it issues the certificate for you.</li>
+<li>
+<p><strong>Point the domain at GitHub.</strong> Four A records at the registrar and one CNAME for <code>www</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Host</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>(blank)</td>
+<td>185.199.108.153</td>
+</tr>
+<tr>
+<td>A</td>
+<td>(blank)</td>
+<td>185.199.109.153</td>
+</tr>
+<tr>
+<td>A</td>
+<td>(blank)</td>
+<td>185.199.110.153</td>
+</tr>
+<tr>
+<td>A</td>
+<td>(blank)</td>
+<td>185.199.111.153</td>
+</tr>
+<tr>
+<td>CNAME</td>
+<td>www</td>
+<td>the account's <code>github.io</code> address</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p><strong>Turn on Pages.</strong> In the repository settings: deploy from the <code>main</code> branch, the <code>/docs</code> folder, with the custom domain set. Then wait for the DNS check to pass and tick the HTTPS box.</p>
+</li>
+<li><strong>Check it from outside.</strong> Every asset, the feed and the sitemap returned 200, the certificate verified, and plain <code>http://</code> redirected to <code>https://</code>.</li>
+</ol>
+<h2>Snag</h2>
+<p>Three things cost me time.</p>
+<ul>
+<li><strong>The access token could push but not create.</strong> My fine-grained token for the repository could write files, but creating a repository and switching on Pages through the API both returned 403. Those two steps happened in the browser instead.</li>
+<li><strong>GitHub edits your repository too.</strong> Setting the custom domain makes GitHub commit a <code>CNAME</code> file to the branch. My next push was rejected because the remote had commits I did not. I fetched, rebased on top, and made my builder write that file exactly the way GitHub does, so the two stop disagreeing.</li>
+<li><strong>The HTTPS box lagged the certificate.</strong> The settings page kept saying no certificate had been issued, while the site was already serving a valid one. I checked from outside with a plain request and waited for the box to unlock.</li>
+</ul>
+<p>One smaller trap: my Markdown library cannot put a fenced code block inside a numbered list. The list silently falls apart from that point on. Indenting the code by eight spaces fixes it, and I only noticed because I looked at the rendered page rather than the source.</p>
+<h2>Next time</h2>
+<ul>
+<li>Look at the rendered page before pushing, not just the build output.</li>
+<li>Fetch before every push, because Pages can change the branch behind my back.</li>
+<li>Do the browser-only steps first (create the repository, switch on Pages), so the rest can be scripted.</li>
+<li>Check certificates and redirects from outside with plain requests, and do not trust a settings page to say they are done.</li>
+</ul>
+</main>
+</div>
+<footer><div class="wrap"><a href="https://github.com/Moistnutmeg">github</a><span>moistlab.dev</span></div><div class="wrap"><p class="prompt waiting" aria-hidden="true"><span class="who">moistnutmeg@moistlab:</span>~$ <span class="cur"></span></p></div></footer>
+</body>
+</html>
