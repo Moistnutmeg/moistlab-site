@@ -48,12 +48,13 @@ LAYOUT = """<!doctype html>
 <a class="skip" href="#main">Skip to content</a>
 <a class="banner" href="{r}" aria-label="{name}, home"><img src="{r}assets/img/moistlab-banner-1200.jpg" srcset="{r}assets/img/moistlab-banner-1200.jpg 1200w, {r}assets/img/moistlab-banner.jpg 2400w" sizes="(min-width: 1200px) 1200px, 100vw" width="2400" height="490" alt="{banner_alt}"></a>
 <div class="wrap">
-<nav aria-label="Main"><a href="{r}"{cur_home}>Notes</a><a href="{r}about/"{cur_about}>About</a></nav>
+<p class="prompt" aria-hidden="true"><span class="who">moistnutmeg@moistlab:</span>~$ <span class="cmd" style="--n:{cmdlen}">{cmd}</span></p>
+<nav aria-label="Main"><a href="{r}"{cur_home}>notes/</a><a href="{r}about/"{cur_about}>about.md</a><a href="{r}feed.xml">feed.xml</a></nav>
 <main id="main">
 {body}
 </main>
 </div>
-<footer><div class="wrap"><span>moistlab.dev</span><a href="{r}feed.xml">Feed</a><a href="{github}">GitHub</a></div></footer>
+<footer><div class="wrap"><a href="{github}">github</a><span>moistlab.dev</span></div><div class="wrap"><p class="prompt waiting" aria-hidden="true"><span class="who">moistnutmeg@moistlab:</span>~$ <span class="cur"></span></p></div></footer>
 </body>
 </html>
 """
@@ -72,11 +73,11 @@ def parse(path):
     return meta, md.convert(body)
 
 
-def page(out_path, depth, title, desc, body, canon_path, current="", ogtype="website"):
+def page(out_path, depth, title, desc, body, canon_path, current="", ogtype="website", cmd="ls notes/"):
     r = "../" * depth
     text = LAYOUT.format(
         title=html.escape(title), desc=html.escape(desc), canon=SITE + canon_path, r=r, name=NAME, site=SITE,
-        ogtype=ogtype, banner_alt=html.escape(BANNER_ALT), github=GITHUB, body=body,
+        ogtype=ogtype, banner_alt=html.escape(BANNER_ALT), github=GITHUB, body=body, cmd=html.escape(cmd), cmdlen=len(cmd),
         cur_home=' aria-current="page"' if current == "home" else "",
         cur_about=' aria-current="page"' if current == "about" else "",
     )
@@ -125,24 +126,24 @@ def main():
     else:
         listing = '<p class="empty">No notes yet. The first write-up lands here.</p>'
     body = f"<h1>Notes from the lab</h1>\n<p>{html.escape(DESC)}</p>\n{listing}"
-    page(OUT / "index.html", 0, NAME, DESC, body, "/", current="home")
+    page(OUT / "index.html", 0, NAME, DESC, body, "/", current="home", cmd="ls notes/")
 
     # notes
     for p in posts:
         body = (f'<h1>{html.escape(p["title"])}</h1>\n<p class="meta"><time datetime="{p["date"]}">{fmt(p["date"])}</time></p>\n{p["html"]}')
         page(OUT / "notes" / p["slug"] / "index.html", 2, f'{p["title"]} - {NAME}', p["summary"] or DESC, body,
-             f'/notes/{p["slug"]}/', ogtype="article")
+             f'/notes/{p["slug"]}/', current="home", ogtype="article", cmd=f'cat notes/{p["slug"]}.md')
 
     # pages
     for f in sorted((SRC / "pages").glob("*.md")):
         meta, content = parse(f)
         page(OUT / f.stem / "index.html", 1, f'{meta.get("title", f.stem)} - {NAME}', meta.get("summary", DESC), content,
-             f"/{f.stem}/", current=f.stem)
+             f"/{f.stem}/", current=f.stem, cmd=f"cat {f.stem}.md")
 
     # 404 uses absolute asset paths because it is served from any depth
     notfound = ('<h1>Page not found</h1>\n<p>That address does not exist. The <a href="/">list of notes</a> is the place to start.</p>')
-    page(OUT / "404.html", 0, f"Not found - {NAME}", DESC, notfound, "/404.html")
-    t = (OUT / "404.html").read_text().replace('"assets/', '"/assets/').replace('href=""', 'href="/"').replace('href="about/"', 'href="/about/"').replace('href="feed.xml"', 'href="/feed.xml"')
+    page(OUT / "404.html", 0, f"Not found - {NAME}", DESC, notfound, "/404.html", cmd="cd missing")
+    t = (OUT / "404.html").read_text().replace('"assets/', '"/assets/').replace('href=""', 'href="/"').replace('href="about/"', 'href="/about/"').replace('href="feed.xml"', 'href="/feed.xml"').replace('href="notes/', 'href="/notes/')
     (OUT / "404.html").write_text(t)
 
     # sitemap and atom feed
