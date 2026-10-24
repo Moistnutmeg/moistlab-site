@@ -109,7 +109,7 @@ def main():
     if OUT.exists():
         shutil.rmtree(OUT)
     shutil.copytree(SRC / "assets", OUT / "assets")
-    (OUT / "CNAME").write_text("moistlab.dev\n")
+    (OUT / "CNAME").write_text("moistlab.dev")  # no newline: matches the file GitHub itself writes
     (OUT / ".nojekyll").write_text("")
     (OUT / "robots.txt").write_text(f"User-agent: *\nAllow: /\nSitemap: {SITE}/sitemap.xml\n")
 
