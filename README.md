@@ -1,6 +1,6 @@
 # moistlab-site
 
-Source for [moistlab.dev](https://moistlab.dev): write-ups from a home lab, in a grey theme with the MoistRex mascot.
+Source for [moistlab.dev](https://moistlab.dev): notes on learning IT security, in a grey theme with the MoistRex mascot.
 
 A small static-site builder, no framework. Notes are Markdown, `build.py` turns them into plain HTML in `docs/`, and GitHub Pages serves that folder.
 

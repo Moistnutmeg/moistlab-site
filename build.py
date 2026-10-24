@@ -21,7 +21,7 @@ ROOT = Path(__file__).parent
 SRC, OUT = ROOT / "src", ROOT / "docs"
 SITE = "https://moistlab.dev"
 NAME = "MoistLab"
-DESC = "Write-ups from a home lab: the goal, the steps, the snag, and what to do next time."
+DESC = "Notes on learning IT security: the goal, the steps, the snag, and what to do next time."
 GITHUB = "https://github.com/Moistnutmeg"
 BANNER_ALT = "MoistRex, a pixel dinosaur in a hoodie and sunglasses beside a glowing terminal, next to the word MoistLab"
 
