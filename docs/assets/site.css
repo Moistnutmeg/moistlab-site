@@ -44,7 +44,7 @@ blockquote{margin:0 0 16px;padding-left:16px;border-left:2px solid var(--rule);c
 table{border-collapse:collapse;margin:0 0 20px;width:100%}
 th,td{border-bottom:1px solid var(--rule);padding:6px 12px 6px 0;text-align:left;vertical-align:top}
 hr{border:0;border-top:1px solid var(--rule);margin:32px 0}
-img{max-width:100%;height:auto}
+img,video{max-width:100%;height:auto}
 footer{border-top:1px solid var(--rule);padding:20px 0 40px;color:var(--muted)}
 footer .wrap{display:flex;flex-wrap:wrap;gap:8px 28px}
 footer .prompt{margin:8px 0 0}
