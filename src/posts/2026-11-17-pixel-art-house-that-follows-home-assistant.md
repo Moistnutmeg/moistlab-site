@@ -15,6 +15,10 @@ So I built mine as a live 3D scene instead: a pixel-art cutaway of the whole hou
 
 *The Ground Floor view, which hides the floor above.*
 
+![The first floor on its own: the office with the desk, monitors and snake tank at the near end, a child's bedroom with a teepee in the middle and the main bedroom at the far end.](../../assets/img/home-diorama-first.png)
+
+*The First Floor view, which hides the floor below.*
+
 ## Steps
 
 1. **Start from a kit.** The renderer is Three.js, using an open-source "diorama" playbook (MIT licence) that supplies a pixel-art post-processing pass and a palette system. I built the office first, on 2 November, and the rest of the house on 15 and 16 November.
@@ -25,14 +29,14 @@ So I built mine as a live 3D scene instead: a pixel-art cutaway of the whole hou
 6. **Wire it to the house.** A small Python bridge on a home server reads a whitelist of Home Assistant entities and serves them to the page as JSON. The Home Assistant token stays on the server and the page never sees it. Lamps in the scene come on and off with the real ones, and clicking a lamp switches the real light, through a second endpoint that only accepts a short list of lamps.
 7. **Test frozen frames.** The page exposes a `freeze(t)` function that draws one frame for a given time. Every check, and every picture in this post, is a frozen frame rather than a screenshot taken at a moment I could not repeat.
 
-The clip below is the Full view at night on a black background, with the night routines running. It is rendered frame by frame from `freeze(t)`, in real time.
+The clip below is the Full view through one day and into the night: 65 seconds of daytime, six seconds of dusk, then 25 seconds of night. By day the figures at the desk and on the couch are working, a small figure plays in the garden and comes indoors to pester the two of them, and the doors swing open as people go through them. Dusk is the real change in the light: the windows darken, the garden fairy lights come on and the lamps take over. At night the figures are asleep and the cats' routine runs. It is rendered frame by frame from `freeze(t)`, so every frame is repeatable.
 
-<video controls loop muted playsinline preload="metadata" poster="../../assets/img/home-diorama-night-poster.jpg" width="1000" height="640">
-<source src="../../assets/img/home-diorama-night.webm" type="video/webm">
-<source src="../../assets/img/home-diorama-night.mp4" type="video/mp4">
+<video controls loop muted playsinline preload="metadata" poster="../../assets/img/home-diorama-daynight-poster.jpg" width="1000" height="640">
+<source src="../../assets/img/home-diorama-daynight.webm" type="video/webm">
+<source src="../../assets/img/home-diorama-daynight.mp4" type="video/mp4">
 </video>
 
-*A minute of the night routine, in real time.*
+*A minute and a half in real time: day, dusk, night.*
 
 ## Snag
 

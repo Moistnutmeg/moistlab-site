@@ -33,6 +33,8 @@
 <p><em>The Full view, daytime. Two floors and the garden, one fixed camera.</em></p>
 <p><img alt="The ground floor on its own: kitchen island, stairwell, a closet with a glowing monitor, the living room and the front patio." src="../../assets/img/home-diorama-ground.png"></p>
 <p><em>The Ground Floor view, which hides the floor above.</em></p>
+<p><img alt="The first floor on its own: the office with the desk, monitors and snake tank at the near end, a child's bedroom with a teepee in the middle and the main bedroom at the far end." src="../../assets/img/home-diorama-first.png"></p>
+<p><em>The First Floor view, which hides the floor below.</em></p>
 <h2>Steps</h2>
 <ol>
 <li><strong>Start from a kit.</strong> The renderer is Three.js, using an open-source "diorama" playbook (MIT licence) that supplies a pixel-art post-processing pass and a palette system. I built the office first, on 2 November, and the rest of the house on 15 and 16 November.</li>
@@ -43,13 +45,13 @@
 <li><strong>Wire it to the house.</strong> A small Python bridge on a home server reads a whitelist of Home Assistant entities and serves them to the page as JSON. The Home Assistant token stays on the server and the page never sees it. Lamps in the scene come on and off with the real ones, and clicking a lamp switches the real light, through a second endpoint that only accepts a short list of lamps.</li>
 <li><strong>Test frozen frames.</strong> The page exposes a <code>freeze(t)</code> function that draws one frame for a given time. Every check, and every picture in this post, is a frozen frame rather than a screenshot taken at a moment I could not repeat.</li>
 </ol>
-<p>The clip below is the Full view at night on a black background, with the night routines running. It is rendered frame by frame from <code>freeze(t)</code>, in real time.</p>
-<video controls loop muted playsinline preload="metadata" poster="../../assets/img/home-diorama-night-poster.jpg" width="1000" height="640">
-<source src="../../assets/img/home-diorama-night.webm" type="video/webm">
-<source src="../../assets/img/home-diorama-night.mp4" type="video/mp4">
+<p>The clip below is the Full view through one day and into the night: 65 seconds of daytime, six seconds of dusk, then 25 seconds of night. By day the figures at the desk and on the couch are working, a small figure plays in the garden and comes indoors to pester the two of them, and the doors swing open as people go through them. Dusk is the real change in the light: the windows darken, the garden fairy lights come on and the lamps take over. At night the figures are asleep and the cats' routine runs. It is rendered frame by frame from <code>freeze(t)</code>, so every frame is repeatable.</p>
+<video controls loop muted playsinline preload="metadata" poster="../../assets/img/home-diorama-daynight-poster.jpg" width="1000" height="640">
+<source src="../../assets/img/home-diorama-daynight.webm" type="video/webm">
+<source src="../../assets/img/home-diorama-daynight.mp4" type="video/mp4">
 </video>
 
-<p><em>A minute of the night routine, in real time.</em></p>
+<p><em>A minute and a half in real time: day, dusk, night.</em></p>
 <h2>Snag</h2>
 <p>The thing that cost me the most time was the palette. The pixel look comes from snapping every rendered pixel to a fixed list of 64 named colours, and a lit 3D scene does not hand that snap the colours you chose.</p>
 <ul>
